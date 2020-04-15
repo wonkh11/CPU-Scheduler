@@ -35,10 +35,8 @@ int processNum = 5; //Process의 수 5개
 int maxServTime = 20; //최대 Service Time 20
 
 
-int arrivalTime[5];
-int serviceTime[5];
-
-
+int arrivalTime[5]; // Store Arrival Times from Sample
+int serviceTime[5]; //Store Service Time from Sample
 
 struct Queue {
 	int max, front, rear;
@@ -77,7 +75,7 @@ int qPop(struct Queue *q) {
 	return q->data[++(q->rear)];
 }
 
-int qPeek(struct Queue *q) {
+int qPeek(struct Queue *q) { // Just to look a data
 	return q->data[q->rear+1];
 }
 
@@ -86,24 +84,15 @@ int qSize(struct Queue *q) {
 }
 
 
-void qPrint(struct Queue *q) {
-	printf("[");
-	for (int i = q->rear + 1; i <= q->front; i++)
-		printf("%d ", q->data[i]);
-	printf("]\n");	
-}
-
-
-
-int getLeftTime(int *leftTimeArr, int processNum) {
+int getLeftTime(int *leftTimeArr, int processNum) { // calculate Left time of Scheduler
 	int totalLeftTime = 0;
 		for (int i = 0; i < processNum; i++)
 			totalLeftTime += leftTimeArr[i];
 	return totalLeftTime;
 }
 
-void getResult(int result[], int procTime){
-
+void getResult(int result[], int procTime){  // Print out result of Scheduler (except Stride)
+ 
 	printf("----------------------------------------------------------------\n");
 	printf("                         RESULT\n");
 	printf("----------------------------------------------------------------\n");
@@ -155,10 +144,10 @@ void getResult(int result[], int procTime){
 void sample(){
 		
 	int option = 0;
-	int option_arrtime_one[5] = {0, 2, 4, 6, 8};
-	int option_servtime_one[5] = {3, 6, 4, 5, 2};
-	int option_arrtime_two[5] = {0, 3, 5, 7, 9};
-	int option_servtime_two[5] = {4, 7, 3, 4, 2};
+	int option_arrtime_one[5] = {0, 2, 4, 6, 8}; //Option 1's Arrival Time
+	int option_servtime_one[5] = {3, 6, 4, 5, 2}; //Option 1's Service Time
+	int option_arrtime_two[5] = {0, 3, 5, 7, 9}; // Option 2's Arrival Time
+	int option_servtime_two[5] = {4, 7, 3, 4, 2}; // Option 2's Service Time
 
 	printf("which sample would you like you like to choose?\n");
 	printf("1.Example from page 24\n");
@@ -206,38 +195,37 @@ void FIFO(){
 	
 	int totalServTime = 0; 
 	int *leftServTime = malloc(sizeof(int) * processNum); 
-	int procTime = 0; 
-	int curPrcs = -1; 
+	int procTime = 0; //Processed Time to show how much Time passed
+	int curPrcs = -1; //Current Process (Process A == 0), Starts with -1
 
-	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum);
-	for (int i = 0; i <  queNum; i++) {
-		struct Queue temp;
-		qInit(&temp, 100);
-		queue[i] = temp;
-	}
+	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum); //Make Queue
+	struct Queue temp;
+
+	qInit(&temp, 100);//Initialize Queue
+	queue[0] = temp;
 	
-
 	for (int i = 0; i < processNum; i++) {
 		totalServTime += arrivalTime[i];
 		leftServTime[i] = serviceTime[i];
 	}
 	
-	int *result = malloc(sizeof(int) * totalServTime * 10);
+	int *result = malloc(sizeof(int) * totalServTime * 10); //Make result
 
-	for (int i = 0; i < totalServTime * 10; i++){
+	for (int i = 0; i < totalServTime * 10; i++){ //Initilaze Result
 		result[i] = -1;
 	}
 	
 
-	while (getLeftTime(leftServTime, processNum) > 0) {
+	while (getLeftTime(leftServTime, processNum) > 0) { //Scheduling Start
 
 		for (int i = 0; i < processNum; i++){
 			if (arrivalTime[i] == procTime) {
 				for (int j = 0; j < serviceTime[i]; j++){
-					qPush(&queue[0], i);
+					qPush(&queue[0], i); //Push Processes in to Queue up to Servicetime
 				}
 			}
-		}	
+		}
+
 		curPrcs = qPop(&queue[0]);
 				
 		result[procTime] = curPrcs; 
@@ -261,17 +249,16 @@ void RR(){
 
 	int totalServTime = 0; 	
 	int *leftServTime = malloc(sizeof(int) * processNum); 
-	int procTime = 0; 
-	int curPrcs = -1; 
-	int timeCounter = timeSlice;
-	int totalQueNum;
+	int procTime = 0; //Processed Time to show how much Time passed
+	int curPrcs = -1; //Current Process (Process A == 0), Starts with -1
+	int timeCounter = timeSlice; //To use as Counter 
 
-	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum);
-	for (int i = 0; i <  queNum; i++) {
-		struct Queue temp;
-		qInit(&temp, 100);
-		queue[i] = temp;
-	}
+	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum); //Struct Queue
+	struct Queue temp;
+		
+	qInit(&temp, 100);//Initialize Queue
+	queue[0] = temp;
+	
 	
 	for (int i = 0; i < processNum; i++) {
 		totalServTime += arrivalTime[i];
@@ -280,11 +267,11 @@ void RR(){
 	
 	int *result = malloc(sizeof(int) * totalServTime * 10);
 
-	for (int i = 0; i < totalServTime * 10; i++){
+	for (int i = 0; i < totalServTime * 10; i++){ //Initialize Result
 		result[i] = -1;
 	}
 	
-	while (getLeftTime(leftServTime, processNum) > 0) {
+	while (getLeftTime(leftServTime, processNum) > 0) { // Scheduling Starts
 
 		for (int i = 0; i < processNum; i++){
 			if (arrivalTime[i] == procTime) {
@@ -295,7 +282,7 @@ void RR(){
 		}
 
 
-		totalQueNum = 0;
+		int totalQueNum = 0; // for add Size of Queue
 		totalQueNum += qSize(&queue[0]);
 		
 
@@ -306,12 +293,12 @@ void RR(){
 		
 			
 			if (qSize(&queue[0]) > 0) {
-				if (curPrcs == qPeek(&queue[0])){
+				if (curPrcs == qPeek(&queue[0])){ //Peek Next Process (If Process was Scheduled before, time counter--)
 					timeCounter--;
 				}
 				if (timeCounter <= 0 && totalQueNum != leftServTime[curPrcs]) {
-					for (int j = 0; j < leftServTime[curPrcs]; j++){
-						qPush(&queue[0], qPop(&queue[0]));
+					for (int j = 0; j < leftServTime[curPrcs]; j++){ 
+						qPush(&queue[0], qPop(&queue[0])); //Push Processes to Back of Queue up to left Service Time
 	
 					}
 					timeCounter = timeSlice;
@@ -343,13 +330,14 @@ void MLFQ(){
 
 	int totalServTime = 0; 	
 	int *leftServTime = malloc(sizeof(int) * processNum); 
-	int procTime = 0; 
-	int curPrcs = -1; 
-	int timeCounter = timeSlice;
-	int totalQueNum;
+	int procTime = 0; //Processed Time to show how much Time passed
+	int curPrcs = -1; //Current Process (Process A == 0), Starts with -1
+	int timeCounter = timeSlice; //To use as Counter 
 
-	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum);
-	for (int i = 0; i <  queNum; i++) {
+
+	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum); //Struct Queue
+	
+	for (int i = 0; i <  queNum; i++) { // Initialize Queue up to max number of Que (In this Code, Max is 3)
 		struct Queue temp;
 		qInit(&temp, 100);
 		queue[i] = temp;
@@ -366,7 +354,7 @@ void MLFQ(){
 		result[i] = -1;
 	}
 	
-	while (getLeftTime(leftServTime, processNum) > 0) {
+	while (getLeftTime(leftServTime, processNum) > 0) {//Scheduling Start
 
 		for (int i = 0; i < processNum; i++){
 			if (arrivalTime[i] == procTime) {
@@ -377,7 +365,8 @@ void MLFQ(){
 		}
 
 
-		totalQueNum = 0;
+		int totalQueNum = 0;
+
 		for (int i = 0; i <  queNum; i++){
 			totalQueNum += qSize(queue+i);
 		}
@@ -386,18 +375,18 @@ void MLFQ(){
 			timeCounter = timeSlice;
 		}
 
-		for (int i = 0; i <  queNum; i++){
+		for (int i = 0; i <  queNum; i++){//Inquiry all Queue to find Process
 			if (qSize(&queue[i]) > 0) {
-				if (curPrcs == qPeek(&queue[i])){
+				if (curPrcs == qPeek(&queue[i])){//Peek Next Process (If Process was Scheduled before, time counter--)
 					timeCounter--;
 				}
 				if (timeCounter <= 0 && totalQueNum != leftServTime[curPrcs]) {
 					for (int j = 0; j < leftServTime[curPrcs]; j++){
-						if (i !=  queNum - 1){
+						if (i !=  queNum - 1){  //If Process was Scheduled before, Put value of curPrcs to next Queue Line up to Left Service Time
 							qPush(&queue[i+1], qPop(&queue[i]));
 							
 						}else{
-							qPush(&queue[i], qPop(&queue[i]));
+							qPush(&queue[i], qPop(&queue[i])); //If this QueLine is Last, Push process
 							
 						}
 					}
@@ -408,7 +397,7 @@ void MLFQ(){
 		}
 
 
-		for (int i = 0; i <  queNum; i++){
+		for (int i = 0; i <  queNum; i++){ //Inquiry Queue lines and Pop process
 			if (qSize(&queue[i]) > 0) {
 				curPrcs = qPop(&queue[i]);
 				break;
@@ -437,28 +426,29 @@ void MLFQ(){
 
 void STRIDE(){
 	
-	int strprocessNum = 3;
-	int tickets[3] = {100, 50, 250};
-	int ticketStride[3]= {0,0,0};
-	int strArrTime[3] = {0,0,0};
-	int strServTime[3] = {5,5,5};
-	int value[3] = {0,0,0};	
-	int totalTicket = 10000;
+	int strprocessNum = 3; //Stride Processes are 3
+	int tickets[3] = {100, 50, 250}; //ticket value for each Processes
+	int ticketStride[3]= {0,0,0}; //To put Stride value
+	int strArrTime[3] = {0,0,0}; // Stride Processes Start From 0 at Once
+	int strServTime[3] = {5,5,5}; //Stride Proceeses share there Service Times
+	int value[3] = {0,0,0};	// To add Values
+	int totalTicket = 10000; // To Divde Ticket
+
 
 
 	struct Queue *queue = malloc(sizeof(struct Queue) *  queNum);
-	for (int i = 0; i <  queNum; i++) {
+	
 		struct Queue temp;
 		qInit(&temp, 100);
-		queue[i] = temp;
-	}
+		queue[0] = temp;
+	
 
 	
 	int totalServiceTime = 0; 
 	int *leftServiceTimeArr = malloc(sizeof(int) * processNum); 
 	
 	for (int i = 0; i < strprocessNum; i++) {	
-		ticketStride[i] = (totalTicket/tickets[i]);
+		ticketStride[i] = (totalTicket/tickets[i]); //Devide 10000 by Ticket 
 		totalServiceTime += strServTime[i];
 		leftServiceTimeArr[i] = strServTime[i];
 	}
@@ -472,68 +462,58 @@ void STRIDE(){
 	int procTime = 0; 
 	int curProc; 
 
-	while (getLeftTime(leftServiceTimeArr, strprocessNum) > 0) {
-			while (1){
-				if(value[0] == value[1]&& value[0]==value[2]){
+	while (getLeftTime(leftServiceTimeArr, strprocessNum) > 0) { // Start Scheduler
 
-					for (int i = 0; i < strprocessNum; i++){
-				
-						result[procTime] = i;
-						leftServiceTimeArr[i]--;
-						value[i]+=ticketStride[i];
-						qPush(&queue[i], i);
-						procTime++;
-					}
-					
-				}else{
-					int min=0;
-					int num1 = value[0];
-					int num2 = value[1];
-					int num3 = value[2];
+		while (1){
+			if(value[0] == value[1]&& value[0]==value[2]){ // If value is all equal, Push processes A>B>C
 
-				
-					if(num1 >= num2){
-						min = num2;
-
-					}else{
-						min = num1;
-					}
-
-					if(num3<min){
-						min = num3;
-					}
-
-
-					if(min==num1){
-						curProc=0;
-						value[0]+=ticketStride[0];
-					}
-
-					if(min==num2){
-						curProc=1;
-						value[1]+=ticketStride[1];
-					}
-
-					if(min==num3){
-						curProc=2;
-						value[2]+=ticketStride[2];
-					}					
-					break;
-				}
-
-			}
-					
-			qPush(&queue[curProc], curProc);
-			result[procTime] = curProc; //Push to result.
-			leftServiceTimeArr[curProc]--;
-
+				for (int i = 0; i < strprocessNum; i++){
 			
-			for (int i = 0; i < strprocessNum; i++){
-				if (leftServiceTimeArr[i] == 0){
-					qPop(&queue[i]);
+					leftServiceTimeArr[i]--;
+					value[i]+=ticketStride[i];
+					qPush(&queue[0], i);
+					result[procTime] = qPop(&queue[0]);
+					procTime++;
 				}
+					
+				}else{ // Find min value
+				int min=0;
+
+				int num1 = value[0];
+				int num2 = value[1];
+				int num3 = value[2];
+
+				if(num1 >= num2){
+					min = num2;
+				}else {
+					min = num1;
+				}
+
+				if(num3<min){
+					min = num3;
+				}
+
+				if(min==num1){
+					curProc=0;
+					value[0]+=ticketStride[0];
+				}
+
+				if(min==num2){
+					curProc=1;
+					value[1]+=ticketStride[1];
+				}
+
+				if(min==num3){
+					curProc=2;
+					value[2]+=ticketStride[2];
+				}					
+			break;
 			}
-				
+
+		}				
+		qPush(&queue[0], curProc);
+		result[procTime] = qPop(&queue[0]); 
+		leftServiceTimeArr[curProc]--;	
 		procTime++;
 	}
 
@@ -569,6 +549,8 @@ printf("------------------------------------------------------\n");
 
 	printf("------------------------------------------------------\n");
 }
+
+
 
 
 
